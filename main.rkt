@@ -24,7 +24,11 @@
                                  #'#%variable-reference #'#%expression)])
                  (free-identifier=? k #'kw))
         #'(let ([val form])
-            (if (has-contract? val)
-                (contract-name (value-contract val))
-                val))]
+            (cond [(has-contract? val)
+                   (define ctc-msg
+                     (format "- : ~a" (contract-name (value-contract val))))
+                   (displayln ctc-msg)
+                   val]
+                  [else val])
+                val)]
        [form #'form]))))
