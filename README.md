@@ -4,7 +4,7 @@ Here's an example use:
 
 ````
 $ git clone git@github.com:takikawa/contract-repl.git
-$ raco link contract-repl
+$ raco pkg install contract-repl/
 $ racket
 Welcome to Racket v5.3.3.8.
 -> (require contract-repl)
