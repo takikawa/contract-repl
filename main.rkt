@@ -2,15 +2,8 @@
 
 ;; Proof of concept for contract REPL
 
-(module reader syntax/module-reader
-  contract-repl/main
-  #:read read
-  #:read-syntax read-syntax)
-
-(require (for-syntax syntax/parse)
-         (except-in racket #%top-interaction))
-(provide (except-out (all-from-out racket) #%top-interaction)
-         (rename-out [-#%top-interaction #%top-interaction]))
+(require (for-syntax syntax/parse))
+(provide (rename-out [-#%top-interaction #%top-interaction]))
 
 (define-syntax (-#%top-interaction stx)
   (syntax-parse stx
