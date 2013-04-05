@@ -22,8 +22,14 @@
                    (free-identifier=? k #'kw))
           #'(let ([val form])
               (cond [(has-contract? val)
+                     (define ctc
+                       (pretty-format
+                        (contract-name (value-contract val))))
                      (define ctc-msg
-                       (format "- : ~a" (contract-name (value-contract val))))
+                       (format (if (regexp-match? "\n" ctc)
+                                   "- : ~n~a"
+                                   "- : ~a")
+                               (substring ctc 1)))
                      (displayln ctc-msg)
                      val]
                     [else val])
