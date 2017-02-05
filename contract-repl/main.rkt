@@ -17,22 +17,31 @@
          [(~and form (kw:identifier e:expr ...))
           #:when (for/or ([k (list #'#%plain-lambda #'case-lambda #'if #'begin #'begin0
                                    #'let-values #'letrec-values #'set! #'quote #'quote-syntax
+                                   #'values
                                    #'with-continuation-mark #'#%plain-app #'#%top
                                    #'#%variable-reference #'#%expression)])
                    (free-identifier=? k #'kw))
-          #'(let ([val form])
-              (cond [(has-contract? val)
-                     (define ctc
-                       (pretty-format
-                        (contract-name (value-contract val))))
-                     (define ctc-msg
-                       (format (if (regexp-match? "\n" ctc)
-                                   "- : ~n~a"
-                                   "- : ~a")
-                               (substring ctc 1)))
-                     (displayln ctc-msg)
-                     val]
-                    [else val])
-              val)]
+          #'(let ([vals (call-with-values (lambda () form) list)])
+              (define n (length vals))
+              (for ([val vals]
+                    [i (in-naturals 1)])
+                (cond [(has-contract? val)
+                       (display-val-contract val i n)
+                       val]
+                      [else val]))
+              (apply values vals))]
          [form #'form]))
      (transform expanded-stx))))
+
+(define (display-val-contract val index val-count)
+  (define contract (pretty-format (contract-name (value-contract val))))
+  (define prefix (format "~a : " (if (> val-count 1) index "-")))
+  (for ([line (string-split contract "\n")]
+        [line-index (in-naturals)])
+    (displayln
+     (string-append (if (= line-index 0)
+                        prefix
+                        (make-string (string-length prefix) #\space))
+                    ;; Remove quote from first line and maintain indentation in
+                    ;; other lines
+                    (substring line 1)))))
